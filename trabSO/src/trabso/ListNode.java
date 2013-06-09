@@ -35,6 +35,10 @@ public class ListNode {
         return size;
     }
     
+    public int getLogicalAddress(){
+        return (base+size);
+    }
+    
     public void setProcess(int process){
         this.process = process;
     }

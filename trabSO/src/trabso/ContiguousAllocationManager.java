@@ -1,6 +1,8 @@
 package trabSO;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import trabso.ListNode;
 
 public class ContiguousAllocationManager implements ManagementInterface {
@@ -19,6 +21,55 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
 	// libera um bloco de memoria ocupado por um processo
 	public boolean freeMemoryBlock(int processId){
+            int i=0, newBase, newSize;
+            Boolean flag=false;
+            for(i=0; i<dynamicMemory.size(); i++){
+                if(dynamicMemory.get(i).getProcess() == processId){
+                    try {
+                        //faz a remoçao do bloco de memoria caso os blocos acima e abaixo estejam livres
+                        if(dynamicMemory.get(i).getBase() != 0 && dynamicMemory.get(i-1).getProcess() == -1 
+                            && getPhysicalAddress(i, dynamicMemory.get(i).getSize()) != memorySize && dynamicMemory.get(i+1).getProcess() == -1){
+                            
+                            newBase = dynamicMemory.get(i-1).getBase();
+                            newSize = getPhysicalAddress(i+1, dynamicMemory.get(i+1).getSize()) - newBase;
+                            dynamicMemory.get(i-1).setBase(newBase);
+                            dynamicMemory.get(i-1).setSize(newSize);
+                            dynamicMemory.remove(i);
+                            dynamicMemory.remove(i+1);
+                            flag = true;
+                        }
+                        //faz a remoçao do bloco de memoria caso apenas o bloco acima esteja livre
+                        else if((dynamicMemory.get(i).getBase() != 0 && dynamicMemory.get(i-1).getProcess() == -1) 
+                                && (getPhysicalAddress(i, dynamicMemory.get(i).getSize()) == memorySize || dynamicMemory.get(i+1).getProcess() != -1)){
+                            
+                                newBase = dynamicMemory.get(i-1).getBase();
+                                newSize = getPhysicalAddress(i, dynamicMemory.get(i).getSize()) - newBase;
+                                dynamicMemory.get(i-1).setBase(newBase);
+                                dynamicMemory.get(i-1).setSize(newSize);
+                                dynamicMemory.remove(i);
+                                flag = true;
+                        }
+                        //faz a remoçao do bloco de memoria caso apenas o bloco abaixo esteja livre
+                        else if((getPhysicalAddress(i, dynamicMemory.get(i).getSize()) != memorySize && dynamicMemory.get(i+1).getProcess() == -1)
+                                && (dynamicMemory.get(i).getBase() == 0 || dynamicMemory.get(i-1).getProcess() != -1)){
+                            
+                                newSize = getPhysicalAddress(i+1, dynamicMemory.get(i+1).getSize()) - dynamicMemory.get(i).getBase();
+                                dynamicMemory.get(i).setSize(newSize);
+                                dynamicMemory.remove(i+1);
+                                flag = true;
+                            
+                        }
+                        
+                        
+                    } catch (InvalidAddress ia) {
+                        System.err.println("erro: " + ia.getMessage());
+                    }
+                }
+            }
+            if(flag==true){
+                return flag;
+            }else
+                return false;
             
 	}
 	
@@ -54,6 +105,7 @@ public class ContiguousAllocationManager implements ManagementInterface {
                         System.err.println("erro: " + ia.getMessage());
                     }
                 }
+                i++;
             }
             return physicalAddress;
 	}
