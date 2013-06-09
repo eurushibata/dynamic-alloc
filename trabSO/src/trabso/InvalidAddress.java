@@ -1,3 +1,5 @@
+package trabSO;
+
 class InvalidAddress extends Exception {
 	public InvalidAddress() {
 	}

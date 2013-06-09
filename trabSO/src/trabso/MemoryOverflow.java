@@ -1,3 +1,5 @@
+package trabSO;
+
 class MemoryOverflow extends Exception {
 	public MemoryOverflow() {
 	}

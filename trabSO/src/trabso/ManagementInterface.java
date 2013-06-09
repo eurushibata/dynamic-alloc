@@ -1,3 +1,5 @@
+package trabSO;
+
 public interface ManagementInterface {
 
 	// aloca um bloco de memoria para um processo 
