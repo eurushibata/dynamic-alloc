@@ -120,12 +120,7 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
  	// redistribui o conteudo da memoria de modo a criar um grande e unico bloco de memoria livre
 	public void compactMemory(){
-            int i=0;
-            for(i=0; i<dynamicMemory.size(); i++){
-                if(dynamicMemory.get(i).getProcess() == -1){
-                    
-                }
-            }
+            
 	}
 	
 	// traduz um endereco logico de um processo para um endereco fisico
