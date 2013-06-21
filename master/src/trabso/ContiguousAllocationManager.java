@@ -1,7 +1,7 @@
 package trabso;
 
-import exception.MemoryOverflow;
-import exception.InvalidAddress;
+import exceptions.MemoryOverflow;
+import exceptions.InvalidAddress;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;

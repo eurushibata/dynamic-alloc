@@ -1,5 +1,6 @@
 package trabso;
 
+import interfaces.NotificationInterface;
 import java.util.ArrayList;
 
 public class SimulationUser implements NotificationInterface{

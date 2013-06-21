@@ -1,4 +1,4 @@
-package trabSO;
+package interfaces;
 
 public interface ManagementInterface {
 

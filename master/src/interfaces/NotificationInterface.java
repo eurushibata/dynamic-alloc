@@ -1,4 +1,4 @@
-package trabso;
+package interfaces;
 
 import java.util.ArrayList;
 
