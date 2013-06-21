@@ -51,6 +51,16 @@ public class Block implements Comparable<Block> {
         this.size = size;
     }
     
+//    public int compareTo(Block cBlock) {
+//        if (this.base < cBlock.base) {
+//            return -1;
+//        }
+//        if (this.base > cBlock.base) {
+//            return 1;
+//        }
+//        return 0;
+//    }
+    
     public int compareTo(Block cBlock) {
         if (this.base < cBlock.base) {
             return -1;
@@ -60,4 +70,5 @@ public class Block implements Comparable<Block> {
         }
         return 0;
     }
+    
 }

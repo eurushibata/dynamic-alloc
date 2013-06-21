@@ -19,7 +19,7 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
     // aloca um bloco de memoria para um processo 
     public boolean allocateMemoryBlock(int processId, int size) {
-    // next-fit
+        // next-fit
         
         // worst-fit
         int cindex = -1;
@@ -38,6 +38,7 @@ public class ContiguousAllocationManager implements ManagementInterface {
                 
         }
         
+        // alocação do novo bloco
         if (cindex == -1) {
 //            throw new MemoryOverflow();
             System.out.println("Não há memória disponível");
@@ -56,94 +57,50 @@ public class ContiguousAllocationManager implements ManagementInterface {
     }
 
 	// libera um bloco de memoria ocupado por um processo
-	public boolean freeMemoryBlock(int processId){
-            int i=0, j, newBase, newSize;
-            Boolean flag=false;
-            for(i=0; i<dynamicMemory.size(); i++){
-                if(dynamicMemory.get(i).getProcess() == processId){
-                    try {
-                        //faz a remoçao do bloco de memoria caso os blocos acima e abaixo estejam livres
-                        if(dynamicMemory.get(i).getBase() != 0 && dynamicMemory.get(i-1).getProcess() == -1 
-                            && getPhysicalAddress(i, dynamicMemory.get(i).getSize()) != memorySize && dynamicMemory.get(i+1).getProcess() == -1){
-                            
-                            newBase = dynamicMemory.get(i-1).getBase();
-                            newSize = getPhysicalAddress(i+1, dynamicMemory.get(i+1).getSize()) - newBase;
-                            dynamicMemory.get(i-1).setBase(newBase);
-                            dynamicMemory.get(i-1).setSize(newSize);
-                            dynamicMemory.remove(i);
-                            dynamicMemory.remove(i+1);
-                            
-                            //compactando o array de modo que nao fiquem espaços vazios
-                            j=i;
-                            while((j+2) < dynamicMemory.size()){
-                                dynamicMemory.set(j, dynamicMemory.get(j+2));
-                                j++;
-                            }
-                            dynamicMemory.set(j, dynamicMemory.get(j+1));
-                            dynamicMemory.remove(j+1);
-                            
-                            flag = true;
-                        }
-                        //faz a remoçao do bloco de memoria caso apenas o bloco acima esteja livre
-                        else if((dynamicMemory.get(i).getBase() != 0 && dynamicMemory.get(i-1).getProcess() == -1) 
-                                && (getPhysicalAddress(i, dynamicMemory.get(i).getSize()) == memorySize || dynamicMemory.get(i+1).getProcess() != -1)){
-                            
-                                newBase = dynamicMemory.get(i-1).getBase();
-                                newSize = getPhysicalAddress(i, dynamicMemory.get(i).getSize()) - newBase;
-                                dynamicMemory.get(i-1).setBase(newBase);
-                                dynamicMemory.get(i-1).setSize(newSize);
-                                dynamicMemory.remove(i);
-                                
-                                //compactando o array de modo que nao fiquem espaços vazios
-                                j=i;
-                                while((j+1) < dynamicMemory.size()){
-                                    dynamicMemory.set(j, dynamicMemory.get(j+1));
-                                    j++;
-                                }
-                                dynamicMemory.remove(j);
-                                
-                                flag = true;
-                        }
-                        //faz a remoçao do bloco de memoria caso apenas o bloco abaixo esteja livre
-                        else if((getPhysicalAddress(i, dynamicMemory.get(i).getSize()) != memorySize && dynamicMemory.get(i+1).getProcess() == -1)
-                                && (dynamicMemory.get(i).getBase() == 0 || dynamicMemory.get(i-1).getProcess() != -1)){
-                            
-                                newSize = getPhysicalAddress(i+1, dynamicMemory.get(i+1).getSize()) - dynamicMemory.get(i).getBase();
-                                dynamicMemory.get(i).setSize(newSize);
-                                dynamicMemory.remove(i+1);
-                                
-                                //compactando o array de modo que nao fiquem espaços vazios
-                                j=i+1;
-                                while((j+1) < dynamicMemory.size()){
-                                    dynamicMemory.set(j, dynamicMemory.get(j+1));
-                                    j++;
-                                }
-                                dynamicMemory.remove(j);
-                                
-                                flag = true;
-                            
-                        }
-                        //faz a remoçao do bloco de memoria caso nao haja espaços livres adjacentes
-                        else if((dynamicMemory.get(i).getBase() == 0 && dynamicMemory.get(i+1).getProcess() != -1)
-                                || (getPhysicalAddress(i, dynamicMemory.get(i).getSize()) == memorySize && dynamicMemory.get(i-1).getProcess() != -1) 
-                                || (dynamicMemory.get(i-1).getProcess() != -1 && dynamicMemory.get(i+1).getProcess() != -1)){
-                            
-                            dynamicMemory.get(i).setProcess(-1);
-                            
-                            flag = true;
-                        }
-                        
-                        
-                    } catch (InvalidAddress ia) {
-                        System.err.println("erro: " + ia.getMessage());
-                    }
+	public boolean freeMemoryBlock(int processId) {
+            int cindex = -1;
+            for(int i=0; i<dynamicMemory.size(); i++) {
+                if (dynamicMemory.get(i).getProcess() == processId) {
+                    cindex = i;
                 }
             }
-            if(flag==true){
-                return flag;
-            }else
-                return false;
             
+            if (cindex == -1) {
+                return false;
+            } else {
+                Block curr = dynamicMemory.get(cindex);
+                dynamicMemory.add(new Block(-1, curr.getBase(), curr.getSize()));
+                dynamicMemory.remove(curr);
+                Collections.sort(dynamicMemory);
+                
+                // Merge dos blocos vazios
+                for(int k=0; k<2;k++) { // Executa 2x para garantir merge no caso de 3 blocos, pois o merge executa em grupamentos de 2 blocos
+                    if (dynamicMemory.size() > 1) {
+                        for(int i=0; i<dynamicMemory.size()-1; i++) {
+                            if ((dynamicMemory.get(i).getProcess() == -1)&&(dynamicMemory.get(i+1).getProcess() == -1)) {
+                                //merge
+                                int base = dynamicMemory.get(i).getBase();
+                                int size = dynamicMemory.get(i).getSize() + dynamicMemory.get(i+1).getSize();
+                                dynamicMemory.add(new Block(-1, base, size));
+                                dynamicMemory.remove(i+1);
+                                dynamicMemory.remove(i);
+                                i = dynamicMemory.size();
+                                Collections.sort(dynamicMemory);
+                            }
+                        }
+                    }
+                }
+                
+                return true;
+            }
+            
+            
+                
+             
+//            Block curr = dynamicMemory.get(processId);
+//            
+//            dynamicMemory.add(new Block(-1, curr.getBase(), curr.getSize()));
+//            dynamicMemory.remove(curr);
 	}
 	
 	// libera todos os blocos de memoria ocupados

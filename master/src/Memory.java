@@ -23,8 +23,10 @@ public class Memory {
         a.allocateMemoryBlock(1, 3);
         a.allocateMemoryBlock(2, 2);
         a.allocateMemoryBlock(3, 1);
-//        a.freeAll();
-        
+        a.freeAll();
+        a.freeMemoryBlock(1);
+        a.freeMemoryBlock(2);
+        a.freeMemoryBlock(3);
         for(int i=0; i<a.dynamicMemory.size(); i++) {
             System.out.println(a.dynamicMemory.get(i).getProcess() + "/" + a.dynamicMemory.get(i).getBase()+"/"+a.dynamicMemory.get(i).getSize());
         }
