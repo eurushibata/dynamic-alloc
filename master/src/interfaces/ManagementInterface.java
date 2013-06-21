@@ -1,5 +1,8 @@
 package interfaces;
 
+import exceptions.MemoryOverflow;
+import exceptions.InvalidAddress;
+
 public interface ManagementInterface {
 
 	// aloca um bloco de memoria para um processo 
