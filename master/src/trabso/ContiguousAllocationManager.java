@@ -1,21 +1,26 @@
-package trabSO;
+package trabso;
 
+import exception.MemoryOverflow;
+import exception.InvalidAddress;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import trabso.ListNode;
 
 public class ContiguousAllocationManager implements ManagementInterface {
-	private int memorySize;
-        ArrayList<ListNode> dynamicMemory;
-
-	public ContiguousAllocationManager(int memorySize) {
-            this.memorySize = memorySize;
-            dynamicMemory = new ArrayList(this.memorySize);
+    private int memorySize;
+    private ArrayList<Block> dynamicMemory;
+    
+    public ContiguousAllocationManager(int memorySize) {
+        this.memorySize = memorySize;
+        dynamicMemory = new ArrayList(this.memorySize);
+        freeAll();
 	}
 
 	// aloca um bloco de memoria para um processo 
 	public boolean allocateMemoryBlock(int processId, int size) throws MemoryOverflow {
+            
+            
+            return false;
             
 	}
 
@@ -112,10 +117,9 @@ public class ContiguousAllocationManager implements ManagementInterface {
 	
 	// libera todos os blocos de memoria ocupados
 	public void freeAll(){
-            dynamicMemory.clear();
-            ListNode node = new ListNode(-1, 0, memorySize);
-            dynamicMemory.add(node);
-            
+        dynamicMemory.clear();
+        Block node = new Block(-1, 0, memorySize);
+        dynamicMemory.add(node);
 	}
 
  	// redistribui o conteudo da memoria de modo a criar um grande e unico bloco de memoria livre
@@ -149,6 +153,7 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
 	// processa um arquivo texto contendo um conjunto de comandos
 	public boolean processCommandFile(String fileName){
+            return false;
 		
 	}
 }
