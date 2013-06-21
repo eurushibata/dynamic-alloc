@@ -2,27 +2,58 @@ package trabso;
 
 import exceptions.MemoryOverflow;
 import exceptions.InvalidAddress;
+import interfaces.ManagementInterface;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ContiguousAllocationManager implements ManagementInterface {
     private int memorySize;
-    private ArrayList<Block> dynamicMemory;
+    public ArrayList<Block> dynamicMemory;
     
     public ContiguousAllocationManager(int memorySize) {
         this.memorySize = memorySize;
-        dynamicMemory = new ArrayList(this.memorySize);
+        dynamicMemory = new ArrayList<Block>(this.memorySize);
         freeAll();
-	}
+    }
 
-	// aloca um bloco de memoria para um processo 
-	public boolean allocateMemoryBlock(int processId, int size) throws MemoryOverflow {
-            
-            
+    // aloca um bloco de memoria para um processo 
+    public boolean allocateMemoryBlock(int processId, int size) {
+    // next-fit
+        
+        // worst-fit
+        int cindex = -1;
+        for(int i=0; i<dynamicMemory.size(); i++) {
+            // Buscar por todos os blocos sem processo e que cabe o novo processo
+            if ((dynamicMemory.get(i).getProcess() == -1)&&(dynamicMemory.get(i).getSize()>=size)) {                 
+                // Bloco candidato a alocar o processo
+                if (cindex == -1) {
+                    cindex = i;
+                } else {
+                    if (dynamicMemory.get(cindex).getSize() < dynamicMemory.get(i).getSize()) {
+                        cindex = i;
+                    }
+                }
+            }
+                
+        }
+        
+        if (cindex == -1) {
+//            throw new MemoryOverflow();
+            System.out.println("Não há memória disponível");
             return false;
-            
-	}
+        } else {
+        // alocar novo processo e fragmentar o bloco se necessário
+            Block curr = dynamicMemory.get(cindex);
+            dynamicMemory.add(new Block(processId, curr.getBase(), size));
+            if ((curr.getSize()-size)>0) {
+                dynamicMemory.add(new Block(-1, curr.getBase()+size, curr.getSize()-size));
+            }
+            dynamicMemory.remove(cindex);
+            Collections.sort(dynamicMemory);
+            return true;
+        }
+    }
 
 	// libera um bloco de memoria ocupado por um processo
 	public boolean freeMemoryBlock(int processId){
@@ -118,8 +149,8 @@ public class ContiguousAllocationManager implements ManagementInterface {
 	// libera todos os blocos de memoria ocupados
 	public void freeAll(){
         dynamicMemory.clear();
-        Block node = new Block(-1, 0, memorySize);
-        dynamicMemory.add(node);
+        Block block = new Block(-1, 0, memorySize);
+        dynamicMemory.add(block);
 	}
 
  	// redistribui o conteudo da memoria de modo a criar um grande e unico bloco de memoria livre

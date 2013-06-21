@@ -8,7 +8,7 @@ package trabso;
  *
  * @author Yuji
  */
-public class Block {
+public class Block implements Comparable<Block> {
     private int process;
     private int base;
     private int size;
@@ -49,5 +49,15 @@ public class Block {
     
     public void setSize(int size){
         this.size = size;
+    }
+    
+    public int compareTo(Block cBlock) {
+        if (this.base < cBlock.base) {
+            return -1;
+        }
+        if (this.base > cBlock.base) {
+            return 1;
+        }
+        return 0;
     }
 }
