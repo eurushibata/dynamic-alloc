@@ -15,6 +15,8 @@ public class ContiguousAllocationManager implements ManagementInterface {
     public ArrayList<Block> dynamicMemory;
     private int clast;
     private Boolean policy;
+    private int[][] memoryBlocks;
+    SimulationUser su = new SimulationUser();
     
     public ContiguousAllocationManager(int memorySize) {
         this.memorySize = memorySize;
@@ -26,7 +28,7 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
     // aloca um bloco de memoria para um processo 
     public boolean allocateMemoryBlock(int processId, int size) throws MemoryOverflow{
-        int i=0, max=dynamicMemory.size(), aux, cindex=-1;
+        int i=0, max=dynamicMemory.size(), cindex=-1;
         
         // next-fit
         
@@ -79,7 +81,9 @@ public class ContiguousAllocationManager implements ManagementInterface {
                 }
                 dynamicMemory.remove(cindex);
                 Collections.sort(dynamicMemory);
-
+                
+                fillMemoryMap();
+                su.displayMemoryMap(memoryBlocks);
 
                 return true;
             }
@@ -99,6 +103,8 @@ public class ContiguousAllocationManager implements ManagementInterface {
         }
 
         if (cindex == -1) {
+            fillMemoryMap();
+            su.displayMemoryMap(memoryBlocks);
             return false;
         } else {
             Block curr = dynamicMemory.get(cindex);
@@ -123,7 +129,9 @@ public class ContiguousAllocationManager implements ManagementInterface {
                     }
                 }
             }
-
+            
+            fillMemoryMap();
+            su.displayMemoryMap(memoryBlocks);
             return true;
         }
     }
@@ -133,6 +141,8 @@ public class ContiguousAllocationManager implements ManagementInterface {
         dynamicMemory.clear();
         Block block = new Block(-1, 0, memorySize);
         dynamicMemory.add(block);
+        fillMemoryMap();
+        su.displayMemoryMap(memoryBlocks);
     }
 
     // redistribui o conteudo da memoria de modo a criar um grande e unico bloco de memoria livre
@@ -152,6 +162,8 @@ public class ContiguousAllocationManager implements ManagementInterface {
                 }
             }
         }
+        fillMemoryMap();
+        su.displayMemoryMap(memoryBlocks);
     }
 
     // traduz um endereco logico de um processo para um endereco fisico
@@ -215,5 +227,14 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
         return false;
 
+    }
+    
+    public void fillMemoryMap(){
+        memoryBlocks = new int[dynamicMemory.size()][3];
+        for(int i=0; i<dynamicMemory.size(); i++){
+            memoryBlocks[i][0] = dynamicMemory.get(i).getProcess();
+            memoryBlocks[i][1] = dynamicMemory.get(i).getBase();
+            memoryBlocks[i][2] = dynamicMemory.get(i).getSize();
+        }
     }
 }
