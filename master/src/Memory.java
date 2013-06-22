@@ -29,13 +29,15 @@ public class Memory {
         //a.allocateMemoryBlock(2, 2);
         //a.allocateMemoryBlock(3, 1);
         a.processCommandFile("teste.txt");
-        try{
+        /*try{
+        System.out.println("oi");
         pa = a.getPhysicalAddress(2, 1);
         System.out.println("Endereco Fisico: " + pa);
         } catch(InvalidAddress ia){
             System.err.println("erro: " + ia.getMessage());  
         }
-        /*a.freeAll();
+        System.out.println("oi");
+        a.freeAll();
         a.freeMemoryBlock(1);
         a.freeMemoryBlock(2);
         a.freeMemoryBlock(3);*/

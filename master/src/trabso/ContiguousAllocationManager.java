@@ -13,54 +13,60 @@ import java.util.logging.Logger;
 public class ContiguousAllocationManager implements ManagementInterface {
     private int memorySize;
     public ArrayList<Block> dynamicMemory;
-    private int cindex;
+    private int clast;
     private Boolean policy;
     
     public ContiguousAllocationManager(int memorySize) {
         this.memorySize = memorySize;
         dynamicMemory = new ArrayList<Block>(this.memorySize);
-        cindex = 0;
+        clast = 0;
         policy=true;
         freeAll();
     }
 
     // aloca um bloco de memoria para um processo 
     public boolean allocateMemoryBlock(int processId, int size) throws MemoryOverflow{
-        int i=0, max=dynamicMemory.size();
+        int i=0, max=dynamicMemory.size(), aux, cindex=-1;
         
         // next-fit
-        if(policy){
-            Boolean flag=false;
-            while(flag==false){
-                if(i==max){
-                    i=0;
+        
+        try {
+            if(policy){
+                for(i=clast; i<max; i++){
+                    if((dynamicMemory.get(i).getProcess() == -1) && (dynamicMemory.get(i).getSize()>=size)){
+                        clast = i;
+                        cindex = clast;
+                        break;
+                    }
                 }
-                if((dynamicMemory.get(i).getProcess() == -1) && (dynamicMemory.get(i).getSize()>=size)){
-                    cindex = i;
-                    flag=true;
-                }
-            i++;
-            }
-        }
-        // worst-fit
-        else if(!policy){
-            cindex = -1;
-            for(i=0; i<dynamicMemory.size(); i++) {
-                // Buscar por todos os blocos sem processo e que cabe o novo processo
-                if ((dynamicMemory.get(i).getProcess() == -1)&&(dynamicMemory.get(i).getSize()>=size)) {                 
-                    // Bloco candidato a alocar o processo
-                    if (cindex == -1) {
-                        cindex = i;
-                    } else {
-                        if (dynamicMemory.get(cindex).getSize() < dynamicMemory.get(i).getSize()) {
-                            cindex = i;
+                if(cindex==-1){
+                    for(i=0; i<clast; i++){
+                        if((dynamicMemory.get(i).getProcess() == -1) && (dynamicMemory.get(i).getSize()>=size)){
+                            clast = i;
+                            cindex = clast;
+                            break;
                         }
                     }
                 }
-
             }
-        }
-        try {
+        // worst-fit
+            else if(!policy){
+                cindex = -1;
+                for(i=0; i<dynamicMemory.size(); i++) {
+                    // Buscar por todos os blocos sem processo e que cabe o novo processo
+                    if ((dynamicMemory.get(i).getProcess() == -1)&&(dynamicMemory.get(i).getSize()>=size)) {                 
+                        // Bloco candidato a alocar o processo
+                        if (cindex == -1) {
+                            cindex = i;
+                        } else {
+                            if (dynamicMemory.get(cindex).getSize() < dynamicMemory.get(i).getSize()) {
+                                cindex = i;
+                            }
+                        }
+                    }
+
+                }
+            }
             // alocação do novo bloco
             if (cindex == -1) {
                 throw new MemoryOverflow();
@@ -78,6 +84,7 @@ public class ContiguousAllocationManager implements ManagementInterface {
                 return true;
             }
         } catch(MemoryOverflow mo) {
+            System.out.println("erro estouro de memoria");
             return false;
         }
     }
@@ -149,24 +156,24 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
     // traduz um endereco logico de um processo para um endereco fisico
     public int getPhysicalAddress(int processId, int logicalAddress) throws InvalidAddress{
-        int i=0, physicalAddress=0, finalAddress;
+        int i=0, physicalAddress=-1, finalAddress;
         Boolean flag=false;
         try{
             if(logicalAddress < 0 || processId < 0){
                 throw new InvalidAddress();
             }
-            while(i<dynamicMemory.size() || flag==false){
+            while(i<dynamicMemory.size() && flag==false){
             //for(i=0; i<dynamicMemory.size(); i++){
                 if(dynamicMemory.get(i).getProcess() == processId){
                     finalAddress = dynamicMemory.get(i).getBase() + dynamicMemory.get(i).getSize();
                     physicalAddress = dynamicMemory.get(i).getBase() + logicalAddress;
                     if(physicalAddress > finalAddress){
                         throw new InvalidAddress();
-                }else{
-                    flag = true;
+                    }else{
+                        flag = true;
+                    }
                 }
-                }
-            i++;
+                i++;
             }
         }catch(InvalidAddress ia){
             System.err.println("erro: " + ia.getMessage());
