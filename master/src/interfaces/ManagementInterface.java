@@ -6,7 +6,7 @@ import exceptions.InvalidAddress;
 public interface ManagementInterface {
 
 	// aloca um bloco de memoria para um processo 
-	public boolean allocateMemoryBlock(int processId, int size);
+	public boolean allocateMemoryBlock(int processId, int size) throws MemoryOverflow;
 
 	// libera um bloco de memoria ocupado por um processo
 	public boolean freeMemoryBlock(int processId);

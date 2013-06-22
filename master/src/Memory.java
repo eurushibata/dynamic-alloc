@@ -1,4 +1,7 @@
 
+import exceptions.MemoryOverflow;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import trabso.ContiguousAllocationManager;
 import exceptions.InvalidAddress;
 
