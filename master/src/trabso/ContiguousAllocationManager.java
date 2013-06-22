@@ -3,6 +3,9 @@ package trabso;
 import exceptions.MemoryOverflow;
 import exceptions.InvalidAddress;
 import interfaces.ManagementInterface;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -10,32 +13,52 @@ import java.util.logging.Logger;
 public class ContiguousAllocationManager implements ManagementInterface {
     private int memorySize;
     public ArrayList<Block> dynamicMemory;
+    private int cindex;
+    private Boolean policy;
     
     public ContiguousAllocationManager(int memorySize) {
         this.memorySize = memorySize;
         dynamicMemory = new ArrayList<Block>(this.memorySize);
+        cindex = 0;
+        policy=true;
         freeAll();
     }
 
     // aloca um bloco de memoria para um processo 
     public boolean allocateMemoryBlock(int processId, int size) {
-        // next-fit
+        int i=0, max=dynamicMemory.size();
         
-        // worst-fit
-        int cindex = -1;
-        for(int i=0; i<dynamicMemory.size(); i++) {
-            // Buscar por todos os blocos sem processo e que cabe o novo processo
-            if ((dynamicMemory.get(i).getProcess() == -1)&&(dynamicMemory.get(i).getSize()>=size)) {                 
-                // Bloco candidato a alocar o processo
-                if (cindex == -1) {
+        // next-fit
+        if(policy){
+            Boolean flag=false;
+            while(flag==false){
+                if(i==max){
+                    i=0;
+                }
+                if((dynamicMemory.get(i).getProcess() == -1) && (dynamicMemory.get(i).getSize()>=size)){
                     cindex = i;
-                } else {
-                    if (dynamicMemory.get(cindex).getSize() < dynamicMemory.get(i).getSize()) {
+                    flag=true;
+                }
+            i++;
+            }
+        }
+        // worst-fit
+        else if(!policy){
+            cindex = -1;
+            for(i=0; i<dynamicMemory.size(); i++) {
+                // Buscar por todos os blocos sem processo e que cabe o novo processo
+                if ((dynamicMemory.get(i).getProcess() == -1)&&(dynamicMemory.get(i).getSize()>=size)) {                 
+                    // Bloco candidato a alocar o processo
+                    if (cindex == -1) {
                         cindex = i;
+                    } else {
+                        if (dynamicMemory.get(cindex).getSize() < dynamicMemory.get(i).getSize()) {
+                            cindex = i;
+                        }
                     }
                 }
+
             }
-                
         }
         
         // alocação do novo bloco
@@ -119,28 +142,58 @@ public class ContiguousAllocationManager implements ManagementInterface {
 	public int getPhysicalAddress(int processId, int logicalAddress) throws InvalidAddress{
             int i=0, physicalAddress=0, finalAddress;
             Boolean flag=false;
-            while(i<dynamicMemory.size() || flag==false){
-            //for(i=0; i<dynamicMemory.size(); i++){
-                if(dynamicMemory.get(i).getProcess() == processId){
-                    try{
+            try{
+                if(logicalAddress < 0 || processId < 0){
+                    throw new InvalidAddress();
+                }
+                while(i<dynamicMemory.size() || flag==false){
+                //for(i=0; i<dynamicMemory.size(); i++){
+                    if(dynamicMemory.get(i).getProcess() == processId){
                         finalAddress = dynamicMemory.get(i).getBase() + dynamicMemory.get(i).getSize();
                         physicalAddress = dynamicMemory.get(i).getBase() + logicalAddress;
                         if(physicalAddress > finalAddress){
                             throw new InvalidAddress();
-                        }else{
-                            flag = true;
-                        }
-                    }catch(InvalidAddress ia){
-                        System.err.println("erro: " + ia.getMessage());
+                    }else{
+                        flag = true;
                     }
-                }
+                    }
                 i++;
+                }
+            }catch(InvalidAddress ia){
+                System.err.println("erro: " + ia.getMessage());
+                return -1;
             }
             return physicalAddress;
 	}
 
 	// processa um arquivo texto contendo um conjunto de comandos
 	public boolean processCommandFile(String fileName){
+            try {
+                BufferedReader in = new BufferedReader(new FileReader(fileName));
+                String str;
+                String[] command = new String[100];
+                while (in.ready()) {
+                    str = in.readLine();
+                    command = str.split(" ");
+                    if(command[0].equals("allocateBlock")){
+                        if(allocateMemoryBlock(Integer.parseInt(command[1]), Integer.parseInt(command[2]))){
+                            System.out.println("Processo Inserido!");
+                        }
+                        } else if(command[0].equals("freeBlock")){
+                            if(freeMemoryBlock(Integer.parseInt(command[1]))){
+                                System.out.println("Processo Removido!");
+                            }
+                        } else if(command[0].equals("freeAll")){
+                            freeAll();
+                        } else if(command[0].equals("compact")){
+                            compactMemory();
+                    }
+                }
+                in.close();
+                return true;
+                } catch (IOException e) {
+                    }
+
             return false;
 		
 	}
