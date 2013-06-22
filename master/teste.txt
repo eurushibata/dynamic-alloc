@@ -1,0 +1,3 @@
+allocateBlock 1 3
+allocateBlock 2 2
+allocateBlock 3 1

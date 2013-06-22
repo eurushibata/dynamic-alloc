@@ -1,5 +1,6 @@
 
 import trabso.ContiguousAllocationManager;
+import exceptions.InvalidAddress;
 
 /*
  * To change this template, choose Tools | Templates
@@ -20,13 +21,21 @@ public class Memory {
         // TODO code application logic here
         ContiguousAllocationManager a = new ContiguousAllocationManager(6);
 //        System.out.println(a.dynamicMemory.get(0).getProcess());
-        a.allocateMemoryBlock(1, 3);
-        a.allocateMemoryBlock(2, 2);
-        a.allocateMemoryBlock(3, 1);
-        a.freeAll();
+        int pa=0;
+        //a.allocateMemoryBlock(1, 3);
+        //a.allocateMemoryBlock(2, 2);
+        //a.allocateMemoryBlock(3, 1);
+        a.processCommandFile("teste.txt");
+        try{
+        pa = a.getPhysicalAddress(2, 1);
+        System.out.println("Endereco Fisico: " + pa);
+        } catch(InvalidAddress ia){
+            System.err.println("erro: " + ia.getMessage());  
+        }
+        /*a.freeAll();
         a.freeMemoryBlock(1);
         a.freeMemoryBlock(2);
-        a.freeMemoryBlock(3);
+        a.freeMemoryBlock(3);*/
         for(int i=0; i<a.dynamicMemory.size(); i++) {
             System.out.println(a.dynamicMemory.get(i).getProcess() + "/" + a.dynamicMemory.get(i).getBase()+"/"+a.dynamicMemory.get(i).getSize());
         }
