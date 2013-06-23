@@ -42,72 +42,76 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
     // aloca um bloco de memoria para um processo 
     public boolean allocateMemoryBlock(int processId, int size) throws MemoryOverflow{
-        int i=0, max=dynamicMemory.size(), cindex=-1;
-        
-        // next-fit
-        try {
-            if(policy){
-                for(i=clast; i<max; i++){
-                    if((dynamicMemory.get(i).getProcess() == -1) && (dynamicMemory.get(i).getSize()>=size)){
-                        clast = i;
-                        cindex = clast;
-                        break;
-                    }
-                }
-                if(cindex==-1){
-                    for(i=0; i<clast; i++){
+        if(checkConsistency(processId)){
+            int i=0, max=dynamicMemory.size(), cindex=-1;
+
+            // next-fit
+            try {
+                if(policy){
+                    for(i=clast; i<max; i++){
                         if((dynamicMemory.get(i).getProcess() == -1) && (dynamicMemory.get(i).getSize()>=size)){
                             clast = i;
                             cindex = clast;
                             break;
                         }
                     }
-                }
-            }
-        // worst-fit
-            else if(!policy){
-                cindex = -1;
-                for(i=0; i<dynamicMemory.size(); i++) {
-                    // Buscar por todos os blocos sem processo e que cabe o novo processo
-                    if ((dynamicMemory.get(i).getProcess() == -1)&&(dynamicMemory.get(i).getSize()>=size)) {                 
-                        // Bloco candidato a alocar o processo
-                        if (cindex == -1) {
-                            cindex = i;
-                        } else {
-                            if (dynamicMemory.get(cindex).getSize() < dynamicMemory.get(i).getSize()) {
-                                cindex = i;
+                    if(cindex==-1){
+                        for(i=0; i<clast; i++){
+                            if((dynamicMemory.get(i).getProcess() == -1) && (dynamicMemory.get(i).getSize()>=size)){
+                                clast = i;
+                                cindex = clast;
+                                break;
                             }
                         }
                     }
-
                 }
-            }
+            // worst-fit
+                else if(!policy){
+                    cindex = -1;
+                    for(i=0; i<dynamicMemory.size(); i++) {
+                        // Buscar por todos os blocos sem processo e que cabe o novo processo
+                        if ((dynamicMemory.get(i).getProcess() == -1)&&(dynamicMemory.get(i).getSize()>=size)) {                 
+                            // Bloco candidato a alocar o processo
+                            if (cindex == -1) {
+                                cindex = i;
+                            } else {
+                                if (dynamicMemory.get(cindex).getSize() < dynamicMemory.get(i).getSize()) {
+                                    cindex = i;
+                                }
+                            }
+                        }
 
-//        cindex < total dos -1
-//         só retorna falso
-
-            // alocação do novo bloco
-            if (cindex == -1) {
-                
-                System.out.println("@@@");
-                throw new MemoryOverflow();
-            } else {
-            // alocar novo processo e fragmentar o bloco se necessário
-                Block curr = dynamicMemory.get(cindex);
-                dynamicMemory.add(new Block(processId, curr.getBase(), size));
-                if ((curr.getSize()-size)>0) {
-                    dynamicMemory.add(new Block(-1, curr.getBase()+size, curr.getSize()-size));
+                    }
                 }
-                dynamicMemory.remove(cindex);
-                Collections.sort(dynamicMemory);
-                
-                fillMemoryMap();
-                su.displayMemoryMap(memoryBlocks);
 
-                return true;
+    //        cindex < total dos -1
+    //         só retorna falso
+
+                // alocação do novo bloco
+                if (cindex == -1) {
+
+                    System.out.println("@@@");
+                    throw new MemoryOverflow();
+                } else {
+                // alocar novo processo e fragmentar o bloco se necessário
+                    Block curr = dynamicMemory.get(cindex);
+                    dynamicMemory.add(new Block(processId, curr.getBase(), size));
+                    if ((curr.getSize()-size)>0) {
+                        dynamicMemory.add(new Block(-1, curr.getBase()+size, curr.getSize()-size));
+                    }
+                    dynamicMemory.remove(cindex);
+                    Collections.sort(dynamicMemory);
+
+                    fillMemoryMap();
+                    su.displayMemoryMap(memoryBlocks);
+
+                    return true;
+                }
+            } catch(MemoryOverflow mo) {
+                System.out.println("erro estouro de memoria");
+                return false;
             }
-        } catch(MemoryOverflow mo) {
-            System.out.println("erro estouro de memoria");
+        }else{
             return false;
         }
     }
@@ -255,5 +259,17 @@ public class ContiguousAllocationManager implements ManagementInterface {
             memoryBlocks[i][1] = dynamicMemory.get(i).getBase();
             memoryBlocks[i][2] = dynamicMemory.get(i).getSize();
         }
+    }
+    
+    public Boolean checkConsistency(int processId){
+        if(processId == -1){
+            return false;
+        }
+        for(int i=0; i<dynamicMemory.size(); i++){
+            if(dynamicMemory.get(i).getProcess() == processId){
+                return false;
+            }
+        }
+        return true;
     }
 }

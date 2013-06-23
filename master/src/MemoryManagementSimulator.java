@@ -66,6 +66,9 @@ public class MemoryManagementSimulator {
                     m.compactMemory();
                 } else if(op[0].equals("physicalAddress")) {
                     System.out.println("Endereço Físico:"+m.getPhysicalAddress(Integer.parseInt(op[1]), Integer.parseInt(op[2])));
+                } else if(op[0].equals("processFile")){
+                    System.out.println("Processando arquivo...");
+                    m.processCommandFile(op[1]);
                 } else if(op[0].equals("exit")){
                     System.exit(0);
                 } else {
@@ -104,6 +107,7 @@ public class MemoryManagementSimulator {
         System.out.println("    freeAll");
         System.out.println("    compact");
         System.out.println("    physicalAddress <process_id> <logical_address>");
+        System.out.println("    processFile <fileName>");
         System.out.println("    exit");
         System.out.println("----------------------------------------------------");
         System.out.print(" > ");
