@@ -219,8 +219,10 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
     // processa um arquivo texto contendo um conjunto de comandos
     public boolean processCommandFile(String fileName){
+        System.out.println(fileName);
         try {
             BufferedReader in = new BufferedReader(new FileReader(fileName));
+            System.out.println("Processando arquivo...");
             String str;
             String[] command = new String[100];
             while (in.ready()) {
@@ -243,8 +245,8 @@ public class ContiguousAllocationManager implements ManagementInterface {
             in.close();
             return true;
             } catch (IOException e) {
-                }
-                catch (MemoryOverflow mo){
+                System.err.println("Arquivo inválido");
+            } catch (MemoryOverflow mo){
                     
                 }
 

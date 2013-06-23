@@ -67,7 +67,6 @@ public class MemoryManagementSimulator {
                 } else if(op[0].equals("physicalAddress")) {
                     System.out.println("Endereço Físico:"+m.getPhysicalAddress(Integer.parseInt(op[1]), Integer.parseInt(op[2])));
                 } else if(op[0].equals("processFile")){
-                    System.out.println("Processando arquivo...");
                     m.processCommandFile(op[1]);
                 } else if(op[0].equals("exit")){
                     System.exit(0);
@@ -91,10 +90,9 @@ public class MemoryManagementSimulator {
     public static void usage() {
         
         System.err.println("Wrong or missing arguments.");
-        System.err.println("Usage: MemoryManagementSimulator.jar <memory_size> <policy> [<files>].");
+        System.err.println("Usage: java -jar trabSO.jar <memory_size> <policy>");
         System.err.println("<memory_size>: integer");
         System.err.println("<policy>: 0 Next-fit | 1 Worst-fit");
-        System.err.println("[<files>]: files");
     }
     
     /**
