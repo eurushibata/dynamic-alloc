@@ -86,7 +86,7 @@ public class MemoryManagementSimulator {
     
     } 
     /**
-     *
+     * Método que imprime ao usuário os possíveis erros ocorridos durante uma solicitação.
      */
     public static void usage() {
         
@@ -98,7 +98,7 @@ public class MemoryManagementSimulator {
     }
     
     /**
-     *
+     * Imprime o menu do sistema.
      */
     public static void menu() {
         System.out.println("\n\n  Comandos:");

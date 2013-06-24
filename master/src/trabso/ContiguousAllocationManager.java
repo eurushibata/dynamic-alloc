@@ -10,14 +10,26 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * 
+ * @author Yuji
+ */
 public class ContiguousAllocationManager implements ManagementInterface {
     private int memorySize;
+    /**
+     * 
+     */
     public ArrayList<Block> dynamicMemory;
     private int clast;
     private Boolean policy;
     private int[][] memoryBlocks;
     SimulationUser su = new SimulationUser();
     
+    /**
+     * Construtor da classe.
+     * 
+     * @param memorySize Tamanho total do bloco de memória.
+     */
     public ContiguousAllocationManager(int memorySize) {
         this.memorySize = memorySize;
         dynamicMemory = new ArrayList<Block>(this.memorySize);
@@ -26,21 +38,36 @@ public class ContiguousAllocationManager implements ManagementInterface {
         freeAll();
     }
     
+    /**
+     * Retorna true se a política escolhida for Next-Fit ou false se a política escolhida for Worst-Fit.
+     * 
+     * @param policy true se a política utilizada é Next-Fit ou false se for Worst-Fit.
+     */
     public void setPolicy(int policy) {
         if (policy == 0) {
             this.policy = true; 
         } else if (policy == 1) {
             this.policy = false;
         }
-        // true = Next-fit
-        // false = Worst-fit
     }
     
+    /**
+     * Retorna o tipo de política escolhida.
+     * 
+     * @return policy true se a política utilizada é Next-Fit ou false se for Worst-Fit. 
+     */
     public boolean getPolicy() {
         return this.policy;
     }
 
-    // aloca um bloco de memoria para um processo 
+    /**
+     * Aloca um bloco de memória para um processo de acordo com uma política de localização de blocos livres.
+     * 
+     * @param processId Identificação do processo que será alocado.
+     * @param size Tamanho do Processo alocado.
+     * @return Retorna true se o processo foi alocado com sucesso ou false se o processo não pode ser alocado.
+     * @throws MemoryOverflow
+     */
     public boolean allocateMemoryBlock(int processId, int size) throws MemoryOverflow{
         if(checkConsistency(processId)){
             int i=0, max=dynamicMemory.size(), cindex=-1;
@@ -116,7 +143,12 @@ public class ContiguousAllocationManager implements ManagementInterface {
         }
     }
 
-    // libera um bloco de memoria ocupado por um processo
+    /**
+     * Libera um bloco de memória ocupado por um processo.
+     * 
+     * @param processId Identificação do processo que será removido.
+     * @return Retorna true se um bloco de memória foi removido com sucesso ou false se o bloco não pode ser removido.
+     */
     public boolean freeMemoryBlock(int processId) {
         int cindex = -1;
         for(int i=0; i<dynamicMemory.size(); i++) {
@@ -159,7 +191,9 @@ public class ContiguousAllocationManager implements ManagementInterface {
         }
     }
 
-    // libera todos os blocos de memoria ocupados
+    /**
+     * Libera todos os blocos de memória ocupados.
+     */
     public void freeAll(){
         dynamicMemory.clear();
         Block block = new Block(-1, 0, memorySize);
@@ -168,7 +202,9 @@ public class ContiguousAllocationManager implements ManagementInterface {
         su.displayMemoryMap(memoryBlocks);
     }
 
-    // redistribui o conteudo da memoria de modo a criar um grande e unico bloco de memoria livre
+    /**
+     * Redistribui o conteúdo da memória de modo a criar um grande e único bloco de memória livre.
+     */
     public void compactMemory(){
         Collections.sort(dynamicMemory);
         // Memória auxiliar
@@ -189,7 +225,14 @@ public class ContiguousAllocationManager implements ManagementInterface {
         su.displayMemoryMap(memoryBlocks);
     }
 
-    // traduz um endereco logico de um processo para um endereco fisico
+    /**
+     * Traduz um endereço lógico de um processo para um endereço físico.
+     * 
+     * @param processId Identificação do processo
+     * @param logicalAddress Endereço lógico que será traduzido
+     * @return Valor inteiro que representa a tradução do endereço lógico em endereço físico ou -1 caso não exista.
+     * @throws InvalidAddress
+     */
     public int getPhysicalAddress(int processId, int logicalAddress) throws InvalidAddress{
         int i=0, physicalAddress=-1, finalAddress;
         Boolean flag=false;
@@ -217,7 +260,12 @@ public class ContiguousAllocationManager implements ManagementInterface {
         return physicalAddress;
     }
 
-    // processa um arquivo texto contendo um conjunto de comandos
+    /**
+     * Processa um arquivo texto contendo um conjunto de comandos a serem executados.
+     * 
+     * @param fileName Path para o arquivo que será carregado.
+     * @return Retorna true se o arquivo foi lido e seus comandos executados ou false caso contrário.
+     */
     public boolean processCommandFile(String fileName){
         try {
             BufferedReader in = new BufferedReader(new FileReader(fileName));
@@ -252,6 +300,10 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
     }
     
+    /**
+     * Preenche uma matriz com os seguintes atributos: Processo, Base e Tamanho.
+     * 
+     */
     public void fillMemoryMap(){
         memoryBlocks = new int[dynamicMemory.size()][3];
         for(int i=0; i<dynamicMemory.size(); i++){
@@ -261,6 +313,13 @@ public class ContiguousAllocationManager implements ManagementInterface {
         }
     }
     
+    /**
+     * Verifica a consistência dos processos alocados durante a execução.
+     * 
+     * @param processId Identificação do processo a ser verificado.
+     * @return Retorna true se não há processos com mesmo identificação sendo alocados ou se a identificação -1 (vazio)
+     * está sendo alocada ou false se é encontrada alguma inconsistência.
+     */
     public Boolean checkConsistency(int processId){
         if(processId == -1){
             return false;

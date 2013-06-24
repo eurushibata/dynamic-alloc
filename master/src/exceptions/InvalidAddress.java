@@ -6,7 +6,7 @@ package exceptions;
  */
 public class InvalidAddress extends Exception {
     /**
-     * @param name
+     * Exceção gerada para informar que uma solicitação está tentando acessar um endereço de memória inválido.
      */
     public InvalidAddress() {
         super("Referência de endereço de memória inválida");

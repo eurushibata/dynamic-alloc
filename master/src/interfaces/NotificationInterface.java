@@ -2,8 +2,16 @@ package interfaces;
 
 import java.util.ArrayList;
 
+/**
+ * 
+ * @author Yuji
+ */
 public interface NotificationInterface {
 	
-	// notifica a alocacao de quadros aos diferentes processos carregados na memoria
-	public void displayMemoryMap(int[][] memoryBlocks);
+   /**
+     * Notifica a alocação de quadros aos diferentes processos carregados na memória.
+     * 
+     * @param memoryBlocks 
+     */
+    public void displayMemoryMap(int[][] memoryBlocks);
 }
