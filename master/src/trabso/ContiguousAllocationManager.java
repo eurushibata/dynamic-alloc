@@ -267,8 +267,10 @@ public class ContiguousAllocationManager implements ManagementInterface {
      * @return Retorna true se o arquivo foi lido e seus comandos executados ou false caso contrário.
      */
     public boolean processCommandFile(String fileName){
+        System.out.println(fileName);
         try {
             BufferedReader in = new BufferedReader(new FileReader(fileName));
+            System.out.println("Processando arquivo...");
             String str;
             String[] command = new String[100];
             while (in.ready()) {
@@ -291,8 +293,8 @@ public class ContiguousAllocationManager implements ManagementInterface {
             in.close();
             return true;
             } catch (IOException e) {
-                }
-                catch (MemoryOverflow mo){
+                System.err.println("Arquivo inválido");
+            } catch (MemoryOverflow mo){
                     
                 }
 
