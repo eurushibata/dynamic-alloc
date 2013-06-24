@@ -4,13 +4,13 @@ import interfaces.NotificationInterface;
 import java.util.ArrayList;
 
 /**
- * 
+ * Simula usuário
  * @author Yuji
  */
 public class SimulationUser implements NotificationInterface{
     
     /**
-     * 
+     * Método Construtor
      */
     public void SimulationUser() {
     }

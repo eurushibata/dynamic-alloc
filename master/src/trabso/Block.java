@@ -5,23 +5,17 @@
 package trabso;
 
 /**
- *
+ * Estrutura de dados do bloco
  * @author Yuji
  */
 public class Block implements Comparable<Block> {
     private int process;
     private int base;
     private int size;
-
-    /**
-     * 
-     */
-    public Block() {
-    }
     
     
     /**
-     * 
+     * Método Construtor
      * @param process
      * @param base
      * @param size

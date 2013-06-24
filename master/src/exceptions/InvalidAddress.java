@@ -1,7 +1,7 @@
 package exceptions;
 
 /**
- *
+ * Exceção gerada para informar que uma solicitação está tentando acessar um endereço de memória inválido.
  * @author takeshi
  */
 public class InvalidAddress extends Exception {

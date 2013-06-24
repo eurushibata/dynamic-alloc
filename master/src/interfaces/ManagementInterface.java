@@ -4,7 +4,7 @@ import exceptions.MemoryOverflow;
 import exceptions.InvalidAddress;
 
 /**
- * 
+ * Interface implementada pelo gerente de memória
  * @author Yuji
  */
 public interface ManagementInterface {

@@ -11,14 +11,11 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * 
+ * Gerente de Memória
  * @author Yuji
  */
 public class ContiguousAllocationManager implements ManagementInterface {
     private int memorySize;
-    /**
-     * 
-     */
     public ArrayList<Block> dynamicMemory;
     private int clast;
     private Boolean policy;
@@ -69,12 +66,22 @@ public class ContiguousAllocationManager implements ManagementInterface {
      * @throws MemoryOverflow
      */
     public boolean allocateMemoryBlock(int processId, int size) throws MemoryOverflow{
-        if(checkConsistency(processId)){
+        try {
+            if(!checkConsistency(processId)){
+                System.err.println("erro: Identificação de processo inválido ou já existente.");
+                return false;
+            }
+            if (!isMemoryAvailable(size)) {
+                throw new MemoryOverflow();
+            }
+        
             int i=0, max=dynamicMemory.size(), cindex=-1;
-
+            
+            
             // next-fit
-            try {
+            
                 if(policy){
+                       
                     for(i=clast; i<max; i++){
                         if((dynamicMemory.get(i).getProcess() == -1) && (dynamicMemory.get(i).getSize()>=size)){
                             clast = i;
@@ -111,14 +118,12 @@ public class ContiguousAllocationManager implements ManagementInterface {
                     }
                 }
 
-    //        cindex < total dos -1
-    //         só retorna falso
-
                 // alocação do novo bloco
                 if (cindex == -1) {
 
-                    System.out.println("@@@");
-                    throw new MemoryOverflow();
+                    System.out.println("erro: Não há memória disponível de forma contígua.");
+                    return false;
+                    
                 } else {
                 // alocar novo processo e fragmentar o bloco se necessário
                     Block curr = dynamicMemory.get(cindex);
@@ -134,13 +139,11 @@ public class ContiguousAllocationManager implements ManagementInterface {
 
                     return true;
                 }
-            } catch(MemoryOverflow mo) {
-                System.out.println("erro estouro de memoria");
-                return false;
-            }
-        }else{
+        } catch(MemoryOverflow mo) {
+            System.out.println("erro:" + mo.getMessage());
             return false;
         }
+
     }
 
     /**
@@ -150,6 +153,11 @@ public class ContiguousAllocationManager implements ManagementInterface {
      * @return Retorna true se um bloco de memória foi removido com sucesso ou false se o bloco não pode ser removido.
      */
     public boolean freeMemoryBlock(int processId) {
+        if((processId==-1)||checkConsistency(processId)){
+            System.err.println("erro: Identificação de processo inválido ou não existente.");
+            return false;
+        }
+        
         int cindex = -1;
         for(int i=0; i<dynamicMemory.size(); i++) {
             if (dynamicMemory.get(i).getProcess() == processId) {
@@ -170,6 +178,8 @@ public class ContiguousAllocationManager implements ManagementInterface {
             // Merge dos blocos vazios
             for(int k=0; k<2;k++) { // Executa 2x para garantir merge no caso de 3 blocos, pois o merge executa em grupamentos de 2 blocos
                 if (dynamicMemory.size() > 1) {
+                    if (cindex<clast&&getPolicy()) // Para política de Next-fit, ajusta os índices
+                        clast--;
                     for(int i=0; i<dynamicMemory.size()-1; i++) {
                         if ((dynamicMemory.get(i).getProcess() == -1)&&(dynamicMemory.get(i+1).getProcess() == -1)) {
                             //merge
@@ -332,5 +342,22 @@ public class ContiguousAllocationManager implements ManagementInterface {
             }
         }
         return true;
+    }
+    
+    /**
+     *
+     * @param size
+     * @return retorna true caso exista memória suficiente que atenda a requisição. Caso contrário, retorna false. 
+     */
+    public boolean isMemoryAvailable(int size) {
+        int sum = 0;
+        for(int i=0; i<dynamicMemory.size(); i++){
+            if(dynamicMemory.get(i).getProcess() == -1){
+                sum = sum + dynamicMemory.get(i).getSize();
+            }
+        }
+        if (size <= sum)
+            return true;
+        return false;
     }
 }

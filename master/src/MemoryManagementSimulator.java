@@ -73,10 +73,6 @@ public class MemoryManagementSimulator {
                 } else {
                     System.err.println("COMANDO INVÁLIDO");
                 }
-
-                for(int i=0; i<m.dynamicMemory.size(); i++) {
-                    System.out.println(m.dynamicMemory.get(i).getProcess() + "/" + m.dynamicMemory.get(i).getBase()+"/"+m.dynamicMemory.get(i).getSize());
-                }
              
             } catch (NumberFormatException e) {
                 System.err.println("VALOR INVÁLIDO");
